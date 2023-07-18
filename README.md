@@ -3,9 +3,7 @@
 
 ![ER_money](https://github.com/DavideB98/py_money/assets/24292409/bc17ca43-ed1a-4445-9544-743d45b8aa26)
 
-# coding rules
-
-# Coding Rules Gruppo 4
+# Coding Rules
 
 ## Indentazione e formattazione
 
