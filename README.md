@@ -40,10 +40,11 @@ Pymoney è una applicazione che consente di gestire il proprio denaro.
  
  **Gestione registrazione e accessi**
  
- Nella schermata iniziale di Pymoney è possibile accedere o registrarsi nel sistema.
+Nella schermata iniziale di Pymoney è possibile accedere o registrarsi nel sistema.
 Gli accessi e i login sono gestiti tramite un file CSV in cui sono presenti gli username e le password degli utenti.
 
 **Gestione conto, risparmi e carta**
+
 Nella schermata  home è possibile accedere e svolgere operazioni sul proprio conto corrente , la propria carta e creare diversi salvadanai in cui vengono allocati diverse somme in vista del raggiungimento di un obiettivo  scelto dall'utente.
 
 Dopo aver creato e definito un obiettivo per il proprio salvadanaio è anche possibile monitorare i progressi in funzione dell'obiettivo prestabilito.
