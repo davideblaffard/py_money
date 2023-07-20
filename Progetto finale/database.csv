@@ -1,0 +1,6 @@
+ID,Nome,Cognome,Username,Password,Premium,IBAN,Saldo_ContoCorrente,Saldo_Carta,Saldo_Risparmi,Saldo_Investimenti
+2,emily,gregorio,emily.gregorio,ylime,True,IT63198171,400,400,0,0
+2,davide,blaffard,davide.blaffard,edivad,True,IT17245019,100,0,0,0
+3,sara,rossi,sara.rossi,bella,True,IT97701105,19400,700,0,0
+4,luca,michilli,luca.michilli,acul,True,IT63869764,1000,0,0,0
+5,gabriel,alsina,gabriel.alsina,pass,True,IT32209599,1751,200,0,0
