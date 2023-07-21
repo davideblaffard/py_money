@@ -4,7 +4,7 @@
 ![ER_money](https://github.com/DavideB98/py_money/assets/24292409/bc17ca43-ed1a-4445-9544-743d45b8aa26)
 
 
-## **PYMONEY**
+# PYMONEY
 
 Pymoney è una applicazione che consente di gestire il proprio denaro.
 
