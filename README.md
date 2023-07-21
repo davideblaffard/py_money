@@ -1,10 +1,9 @@
-# py_money
-[ER_money.pdf](https://github.com/DavideB98/py_money/files/12079549/ER_money.pdf)
+# PYMONEY
 
 ![image](https://github.com/DavideB98/py_money/assets/139228820/afce2f98-2188-4c03-a31e-d53303761cf5)
 
 
-# PYMONEY
+## Applicazione
 
 Pymoney è una applicazione che consente di gestire il proprio denaro.
 
