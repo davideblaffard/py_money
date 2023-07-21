@@ -24,6 +24,7 @@ Nella schermata  home è possibile accedere e svolgere operazioni sul proprio co
 
 Dopo aver creato e definito un obiettivo per il proprio salvadanaio è anche possibile monitorare i progressi in funzione dell'obiettivo prestabilito.
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Struttura del Codice
  Il codice è un'applicazione basata su Kivy per la gestione di un'app chiamata *PyMoney* che gestisce i risparmi e fondi personali.
 
