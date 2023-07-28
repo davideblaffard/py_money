@@ -9,6 +9,7 @@ import random
 import csv
 import pandas as pd
 
+
 dati = pd.read_csv("database.csv")
 
 
@@ -29,6 +30,17 @@ def accedi(event):
 def registrazione_utente(event):
     app.root.current = 'registrazione'
 
+def recupera_pass(event):
+    dati=pd.read_csv('database.csv')
+    username_ins = app.root.get_screen('login').children[0].username_input.text
+    if username_ins in list(dati["Username"]):
+        riga = dati.loc[dati['Username'] == username_ins].index[0]
+        pass_word = (dati["Password"])[riga]
+        hint_pass= pass_word[0:3]+"*"*(len(pass_word)-3)
+        app.root.get_screen('login').children[0].info_label.text = "La tua password è:"+str(hint_pass)
+    else:
+        app.root.get_screen('login').children[0].info_label.text = "Username inesistente"
+    
 def quanti_user(username):
     conta=dati["Username"].str.contains(username).sum()
     if conta==0:
@@ -44,11 +56,11 @@ def aggiorna_database(nome, cognome, userr, passw, ib):
     # Percorso del file CSV da aggiornare
     percorso_file = 'database.csv'
 
-    # Apri il file in modalità append ("a" per aggiungere alla fine del file)
+    # Apro il file in modalità append ("a" per aggiungere alla fine del file)
     with open(percorso_file, 'a', newline='') as file_csv:
         writer = csv.writer(file_csv)
 
-        # Aggiungi la nuova riga alla tabella
+        # Aggiungo la nuova riga alla tabella
         writer.writerow(nuova_riga)
 
 def aggiornamento_database(username,categoria,obiettivo,importo):
@@ -58,11 +70,11 @@ def aggiornamento_database(username,categoria,obiettivo,importo):
     # Percorso del file CSV da aggiornare
     percorso_file = 'risparmi.csv'
 
-    # Apri il file in modalità append ("a" per aggiungere alla fine del file)
+    # Apro il file in modalità append ("a" per aggiungere alla fine del file)
     with open(percorso_file, 'a', newline='') as file:
         writer = csv.writer(file)
 
-        # Aggiungi la nuova riga alla tabella
+        # Aggiungo la nuova riga alla tabella
         writer.writerow(nuova_riga)
 
 
@@ -79,7 +91,7 @@ class Utente:
         self.cognome = cognome
         self.password = password
         self.iban = "IT" + str(random.randint(1000000, 99999999))
-        # Controllo se la variabile registrazione_screen esiste e se sì, uso il suo valore
+    
         if registrazione_screen:
             self.create_username(self.nome, self.cognome, registrazione_screen)
         else:
@@ -87,12 +99,10 @@ class Utente:
 
         aggiorna_database(self.nome, self.cognome, self.username, self.password,self.iban)
 
-
     def create_username(self, nome, cognome,registrazione_screen):
         self.username = nome.lower() + "." + cognome.lower() + str(quanti_user(nome.lower() + "." + cognome.lower()))
         registrazione_screen.info_label.text = "Il tuo username è "+ self.username
 
-    
     def assistenza(self):
         self.info_label.text = "Chiama questo numero e arrangiati: +39 800522522"
 
@@ -104,22 +114,25 @@ class ContoCorrente:
 
     def get_iban_from_csv(self):
         # Cerca l'IBAN associato all'utente nel DataFrame 'dati'
+        dati= pd.read_csv("database.csv")
         row = dati.loc[dati['Username'] == self.username]
         if not row.empty:
-            return row['IBAN'].values[0]  # Prendi il valore dell'IBAN dalla riga trovata
+            return row['IBAN'].values[0]  # Prendo il valore dell'IBAN dalla riga trovata
         else:
-            return "IBAN non trovato"
+            return  "Non trovato"
     
     def get_saldo_from_csv(self):
         # Cerca l'IBAN associato all'utente nel DataFrame 'dati'
+        dati = pd.read_csv("database.csv")
         row = dati.loc[dati['Username'] == self.username]
         if not row.empty:
             return row['Saldo_ContoCorrente'].values[0]  # Prendi il valore del SaldoContoCorrente dalla riga trovata
         else:
-            return "non trovato"
+            return "Non trovato"
         
     def funzione_show(self,Conto_screen):
         Conto_screen.info_label.text = "Il tuo IBAN:"+str(self.iban)+"e il suo saldo è "+str(self.saldo)
+
    
 class LoginScreen(BoxLayout):
     def __init__(self, **kwargs):
@@ -138,12 +151,16 @@ class LoginScreen(BoxLayout):
         self.password_input = TextInput(hint_text='Password', password=True)
         self.add_widget(self.password_input)
 
-        self.login_button = Button(text='Accedi', on_press=accedi)
-                                        
+        self.login_button = Button(text='Accedi', on_press=accedi)            
         self.add_widget(self.login_button)
+
+        self.registra_button = Button(text='Hai dimenticato la Password?', on_press=recupera_pass)   
+        self.add_widget(self.registra_button)
 
         self.registra_button = Button(text='Registrati', on_press=registrazione_utente)   
         self.add_widget(self.registra_button)
+
+
 
 class HomeScreen(BoxLayout):
     def __init__(self, **kwargs):
@@ -173,7 +190,6 @@ class HomeScreen(BoxLayout):
         self.tornaInLogin_button = Button(text='Torna al Login', on_press=self.torna_al_login)
         self.add_widget(self.tornaInLogin_button)
 
-
     def torna_al_login(self, instance):
         app.root.current = 'login'
 
@@ -189,7 +205,6 @@ class HomeScreen(BoxLayout):
 
             dati.to_csv("database.csv", index=False)
             self.info_label.text = "Complimenti sei appena passato a Premium! Ti abbiamo appena scalato 50€ dal tuo conto corrente!"
-        
 
     def funzioni_premium(self, instance):
         dati=pd.read_csv('database.csv')
@@ -201,10 +216,7 @@ class HomeScreen(BoxLayout):
         
         else:
             self.info_label.text = "Non sei premium: per utilizzare questa funzione devi passare a Premium"
-         
-        
-        
-    
+          
     def contocorrente(self, instance):
         # Verifica se l'username è disponibile
         if self.username:
@@ -298,7 +310,6 @@ class DepositoScreen(BoxLayout):
         self.tornaInLogin_button = Button(text='Indietro', on_press=self.torna_al_conto)
         self.add_widget(self.tornaInLogin_button)
 
-
     def deposito(self, instance):
         username=app.root.get_screen('login').children[0].username_input.text
         try:
@@ -350,7 +361,6 @@ class CartaScreen(BoxLayout):
      def torna_alla_home(self, instance):
         app.root.current = 'home'
      
-
      def ricarica(self, instance):
         username=app.root.get_screen('login').children[0].username_input.text                   
         try:
@@ -410,7 +420,6 @@ class RisparmiScreen(BoxLayout):
         # Assumiamo che il DataFrame contenga colonne chiamate 'Categoria', 'Obiettivo', e 'Progresso'
         risparmi_df = risparmi.loc[riga, ['Risparmio','Categoria','Obiettivo']]
 
-
     def torna_alla_home(self, instance):
         app.root.current = 'home'     
      
@@ -424,6 +433,8 @@ class AggiungiRisparmioPopup(Popup):
         self.size_hint = (0.8, 0.8)
 
         # Creazione di widget per inserire i dettagli del nuovo risparmio
+        self.alert = Label(text='')
+
         self.importo_input = TextInput(hint_text='Importo Risparmio')
         self.categoria_input = TextInput(hint_text='Categoria')
         self.obiettivo_input = TextInput(hint_text='Obiettivo')
@@ -436,40 +447,54 @@ class AggiungiRisparmioPopup(Popup):
         layout.add_widget(self.categoria_input)
         layout.add_widget(self.importo_input)
         layout.add_widget(self.obiettivo_input)
+        layout.add_widget(self.alert)
         layout.add_widget(self.salva_button)
         layout.add_widget(self.annulla_button)
 
         self.content = layout
 
-   
-
     def salva_risparmio(self, instance):
         # Recupera i dati inseriti dall'utente
         categoria = self.categoria_input.text
         obiettivo = self.obiettivo_input.text
-        importo = float(self.importo_input.text)
-               
-        risparmio = pd.read_csv("risparmi.csv")
         username = app.root.get_screen('login').children[0].username_input.text
-        
-        if username in list(risparmio["Username"]):
-            riga=risparmio.loc[(risparmio['Username'] == username) & (risparmio['Categoria'] == categoria)]
-            if not riga.empty:
-                riga=riga.index[0]
-                risparmio.at[riga, 'Categoria'] = categoria
-                risparmio.at[riga, 'Obiettivo'] = obiettivo
-                risparmio.at[riga, 'Risparmio'] += importo
-                risparmio.to_csv("risparmi.csv", index=False)
-                self.dismiss()
+        importo = float(self.importo_input.text)
+        dati = pd.read_csv("database.csv")
+        rigad = dati.loc[dati['Username'] == username].index[0]
 
+        if importo > float(obiettivo): 
+            self.alert.text = 'Non puoi inserire un risparmio con obiettivo minore del risparmio'
+        elif importo > float(dati.at[rigad, "Saldo_ContoCorrente"]):
+            self.alert.text = 'Non puoi inserire questo risparmio perchè non hai abbastanza soldi sul Conto Corrente'
+        else:               
+            risparmio = pd.read_csv("risparmi.csv")            
+            if username in list(risparmio["Username"]):
+                riga=risparmio.loc[(risparmio['Username'] == username) & (risparmio['Categoria'] == categoria)]
+                if not riga.empty:
+                    riga=riga.index[0]
+                    risparmio.at[riga, 'Categoria'] = categoria
+                    risparmio.at[riga, 'Obiettivo'] = obiettivo
+                    risparmio.at[riga, 'Risparmio'] += importo
+                    dati.at[rigad, 'Saldo_ContoCorrente'] -= importo
+                    dati.at[rigad, 'Saldo_Risparmi'] += importo
+                    dati.to_csv("database.csv", index=False)
+                    risparmio.to_csv("risparmi.csv", index=False)
+                    self.dismiss()
+
+                else:
+                    aggiornamento_database(username,categoria,obiettivo,importo)
+                    dati.at[rigad, 'Saldo_ContoCorrente'] -= importo
+                    dati.at[rigad, 'Saldo_Risparmi'] += importo
+                    dati.to_csv("database.csv", index=False)
+                    # Chiudi la popup e aggiorna la lista dei risparmi nella schermata principale
+                    self.dismiss()
             else:
                 aggiornamento_database(username,categoria,obiettivo,importo)
                 # Chiudi la popup e aggiorna la lista dei risparmi nella schermata principale
+                dati.at[rigad, 'Saldo_ContoCorrente'] -= importo
+                dati.at[rigad, 'Saldo_Risparmi'] += importo
+                dati.to_csv("database.csv", index=False)
                 self.dismiss()
-        else:
-            aggiornamento_database(username,categoria,obiettivo,importo)
-            # Chiudi la popup e aggiorna la lista dei risparmi nella schermata principale
-            self.dismiss()
             
 class InvestimentiScreen(BoxLayout):
     def __init__(self, **kwargs):
@@ -482,6 +507,8 @@ class InvestimentiScreen(BoxLayout):
         self.info2_label = Label(text='Seleziona correttamente il rischio di investimento: 1-rischio basso, 2-rischio medio, 3-rischio alto')
         self.add_widget(self.info2_label)
 
+        self.info3_label = Label(text='')
+        self.add_widget(self.info3_label)
 
         self.capitale_input = TextInput(hint_text='Quanto capitale vorresti investire?')
         self.add_widget(self.capitale_input)
@@ -492,14 +519,15 @@ class InvestimentiScreen(BoxLayout):
         self.previsione_button = Button(text='Prevedi rendimento', on_press=self.previsione)
         self.add_widget(self.previsione_button)  
 
+        self.investimento_button = Button(text='Investi', on_press=self.investimento)
+        self.add_widget(self.investimento_button)  
+
         self.indietro_button = Button(text='Indietro', on_press=self.torna_alla_home)
         self.add_widget(self.indietro_button)  
-
 
     def torna_alla_home(self, instance):
         app.root.current = 'home'
         
-    
     def previsione(self, instance):
         self.lista_esiti=[-0.01,-0.02,-0.03,-0.04,-0.05,-0.06,-0.07,-0.08,-0.09,-0.10,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10]
         self.fattore_esito=random.choice(self.lista_esiti)
@@ -508,15 +536,36 @@ class InvestimentiScreen(BoxLayout):
         
         if self.rischio_input.text == "1":
             self.capitale+= self.capitale*float(self.fattore_esito)*1.1
-            self.info2_label.text = "Il tuo investimento potrebbe avere un rendimento "+ str(self.capitale)
+            self.info2_label.text = "Il tuo investimento potrebbe avere un rendimento: "
+            self.info3_label.text = str(self.capitale)
         elif self.rischio_input.text == "2":
             self.capitale+= self.capitale*float(self.fattore_esito)*1.2
-            self.info2_label.text = "Il tuo investimento potrebbe avere un rendimento "+str(self.capitale)
+            self.info2_label.text = "Il tuo investimento potrebbe avere un rendimento: "
+            self.info3_label.text = str(self.capitale)
         elif self.rischio_input.text == "3":
             self.capitale+= self.capitale*float(self.fattore_esito)*1.3
-            self.info2_label.text = "Il tuo investimento potrebbe avere un rendimento "+ str(self.capitale)
+            self.info2_label.text = "Il tuo investimento potrebbe avere un rendimento: "
+            self.info3_label.text = str(self.capitale)
         else: 
             self.info2_label.text = "Inserisci un valido fattore di rischio"
+            self.info3_label.text = ""
+    
+    def investimento(self,instance):
+        dati = pd.read_csv("database.csv")
+        capitale = app.root.get_screen('investimenti_screen').children[0].info3_label.text  
+        username = app.root.get_screen('login').children[0].username_input.text
+        riga=dati.loc[(dati['Username'] == username)]
+        riga=riga.index[0]
+        if float(capitale) > float(dati.at[riga, 'Saldo_ContoCorrente']):
+            app.root.get_screen('investimenti_screen').children[0].info3_label.text  = "NON PUOI PROCEDERE CON L'INVESTIMENTO! Non hai abbastanza capitale nel Conto Corrente"
+        else:
+            dati.at[riga, 'Saldo_ContoCorrente'] += float(capitale)
+            dati.at[riga, 'Saldo_Investimenti'] += float(capitale)
+            dati.to_csv("database.csv", index=False)
+            app.root.get_screen('investimenti_screen').children[0].info3_label.text  = "INVESTIMENTO ANDATO A BUON FINE! Controlla il tuo Conto Corrente"
+    
+
+
                      
 class MonitoraggioScreen(BoxLayout):
     def __init__(self, **kwargs):
@@ -535,12 +584,9 @@ class MonitoraggioScreen(BoxLayout):
         self.avviamoMonitoraggio_button = Button(text='Avvia monitoraggio', on_press=self.monitoraggio)
         self.add_widget(self.avviamoMonitoraggio_button)
 
-
-
         self.indietro_button = Button(text='Torna alla Home', on_press=self.torna_alla_home)
         self.add_widget(self.indietro_button)
 
-        
     def torna_alla_home(self, instance):
         app.root.current = 'home'
 
@@ -562,16 +608,53 @@ class MonitoraggioScreen(BoxLayout):
 
             if self.categoria not in list(nomi_salvadanai):
                  app.root.get_screen('monitoraggio').children[0].info_label.text = "Inserisci il nome esatto del salvadanaio che vuoi monitorare tra i seguenti:\n" + "\n".join(nomi_salvadanai) + "\n"
+                 app.root.get_screen('monitoraggio').children[0].info_label.halign = 'center'
             else:
-                print("entrato")
                 # Filtra il DataFrame per ottenere i dati relativi al nome del salvadanaio scelto
                 salvadanaio_data = user_data[user_data["Categoria"] == self.categoria]
 
                 # Calcola la percentuale e arrotondala a 2 decimali
                 self.percentuale = round(float(salvadanaio_data["Risparmio"]) / float(salvadanaio_data["Obiettivo"]) * 100, 2)
+                if self.percentuale>100:
+                    # Stampa il risultato
+                     app.root.get_screen('monitoraggio').children[0].info2_label.text = "Hai raggiunto il tuo obiettivo al " + str(self.percentuale) + "%"
+                     popup = EliminaRisparmioPopup()
+                     popup.open()
+                else:
+                    app.root.get_screen('monitoraggio').children[0].info2_label.text = "Percentuale del salvadanaio " +  self.categoria + ": " + str(self.percentuale) + "%" 
+    
+class EliminaRisparmioPopup(Popup):
+    def __init__(self, **kwargs):
+        super(EliminaRisparmioPopup, self).__init__(**kwargs)
+        self.title = 'Hai raggiunto il tuo obiettivo su questo risparmio, vuoi eliminarlo dalla lista dei tuoi risparmi?'
+        self.size_hint = (0.8, 0.8)
+              
+        self.info_label = Label(text='Hai raggiunto il tuo obiettivo, vuoi eliminare il tuo risparmio?')
+        self.add_widget(self.info_label)
 
-                # Stampa il risultato
-                app.root.get_screen('monitoraggio').children[0].info2_label.text = "Percentuale del salvadanaio " +  self.categoria + ": " + str(self.percentuale) + "%"
+        self.salva_button = Button(text='Elimina risparmio', on_press=self.elimina)
+        self.annulla_button = Button(text='Indietro', on_press=self.dismiss)
+
+        # Creazione di un layout per organizzare i widget
+        layout = BoxLayout(orientation='vertical')
+        layout.add_widget(self.salva_button)
+        layout.add_widget(self.annulla_button)
+
+        self.content = layout
+
+    def elimina(self, instance):
+        risparmio = pd.read_csv("risparmi.csv")
+        # Recupera i dati inseriti dall'utente
+        username = app.root.get_screen('login').children[0].username_input.text
+        categoria = app.root.get_screen('monitoraggio').children[0].categoria_input.text
+        riga=risparmio.loc[(risparmio['Username'] == username) & (risparmio['Categoria'] == categoria)]
+        risparmio.drop(riga.index, inplace=True)
+        risparmio.to_csv("risparmi.csv", index=False)
+        self.dismiss()
+
+
+    
+            
 
 
 
@@ -584,6 +667,7 @@ class PyMoney(App):
         # Schermata di Login
         login_screen = Screen(name='login')
         login_layout = LoginScreen()
+        login_layout.background_color = (1, 0, 0, 1)
         login_screen.add_widget(login_layout)
         sm.add_widget(login_screen)
 
@@ -623,7 +707,7 @@ class PyMoney(App):
         risparmi_screen.add_widget(risparmi_layout)
         sm.add_widget(risparmi_screen)
 
-        # Schermata di investimenti
+        # Schermata di Investimenti
         investimenti_screen = Screen(name='investimenti_screen')
         investimenti_layout = InvestimentiScreen()
         investimenti_screen.add_widget(investimenti_layout)
@@ -635,10 +719,8 @@ class PyMoney(App):
         monitoraggio_screen.add_widget(monitoraggio_layout)
         sm.add_widget(monitoraggio_screen)
 
-        
         return sm
 
-    
 
 if __name__ == '__main__':
     app = PyMoney()
